@@ -1,22 +1,22 @@
-'use strict'
+"use strict";
 
-let logoutButton = new LogoutButton;
-let ratesBoard = new RatesBoard;
-let moneyManager = new MoneyManager;
-let favoritesWidget = new FavoritesWidget;
+const logoutButton = new LogoutButton();
+const ratesBoard = new RatesBoard();
+const moneyManager = new MoneyManager();
+const favoritesWidget = new FavoritesWidget();
 
-let callback = method => response => (response.success) && method(response.data);
+let callbackFunction = method => response => (response.success) && method(response.data);
 
 function updateTable(data) {
     ratesBoard.clearTable();
     ratesBoard.fillTable(data);
 }
 
-let updateStocks = () => ApiConnector.getStocks(callback(updateTable));
+let updateStocks = () => ApiConnector.getStocks(callbackFunction(updateTable));
 
-logoutButton.action = () => ApiConnector.logout(callback(window.location.reload.bind(window.location)));
-ApiConnector.current(callback(ProfileWidget.showProfile));
-ApiConnector.getFavorites(callback(updateFavorites));
+logoutButton.action = () => ApiConnector.logout(callbackFunction(window.location.reload.bind(window.location)));
+ApiConnector.current(callbackFunction(ProfileWidget.showProfile));
+ApiConnector.getFavorites(callbackFunction(updateFavorites));
 updateStocks();
 setInterval(updateStocks, 60000);
 
@@ -29,10 +29,9 @@ function updateFavorites(data) {
 let handler = (showFunc, errorBox, method, message) => data => method(data, response => {
     if (response.success) {
         showFunc(response.data);
-        let fullMessage = response.data.created_at ? `${response.data.created_at}, ${response.data.login}: ` + message : message;
-        errorBox.setMessage(!response.success, fullMessage);
+        errorBox.setMessage(response.success, message);
     } else {
-        errorBox.setMessage(!response.success, response.data);
+        errorBox.setMessage(response.success, response.error);
     }
 });
 
